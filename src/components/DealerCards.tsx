@@ -16,11 +16,12 @@ export default function DealerCards({}: Props) {
     addCard(getCard());
   };
   const startGame = () => {
+    console.log(deck.length);
     addCard(getCard(2));
   };
   useEffect(() => {
     switch (decision.action) {
-      case "start":
+      case "bet":
         startGame();
         break;
       case "hit":
@@ -34,7 +35,7 @@ export default function DealerCards({}: Props) {
   const showCard = isStanding || isBusted || isBlackJack;
   return (
     <div className="flex  py-4 space-y-5 flex-col  text-center">
-      <div className="flex flex-wrap relative  justify-center ">
+      <div className="flex space-x-2 flex-wrap relative  justify-center ">
         <AnimatePresence>
           {hand.map((card, index) => (
             <motion.div
@@ -43,7 +44,6 @@ export default function DealerCards({}: Props) {
               initial={{ rotate: 0, scale: 0.9 }}
               animate={{ rotate: 360, scale: [1.1, 1] }}
               transition={{ duration: 1 }}
-              className={` flex m-1`}
             >
               <CardComponent {...card} show={index == 0 || showCard} />
             </motion.div>

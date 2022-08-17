@@ -1,6 +1,7 @@
 import { Card } from "@interfaces/card";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import SVG, { Props as SVGProps } from "react-inlinesvg";
 
 interface CardComponentProps extends Card {
   show?: boolean;
@@ -93,34 +94,31 @@ export default function CardComponent({
   show = false,
 }: CardComponentProps) {
   const color =
-    suit === "diamonds" || suit === "hearts" ? "text-red-500" : "text-black";
+    suit === "diamonds" || suit === "hearts" ? "fill-red-500" : "fill-black";
+  const classNames = ` ${color}  m-auto 
+bg-white
+    h-20 w-[3.5rem] px-1
+  md:h-24 md:w-16 
+lg:h-28 lg:w-20 rounded-md justify-center flex items-center border-1 border-gray-100 border `;
   return (
-    <div
-      className={` ${color} font-serif bg-white m-auto
-      text-[5rem] h-20 w-[3.5rem] 
-      md:text-[6rem] md:h-24 md:w-16 
-      lg:text-[7rem] lg:h-28 lg:w-20 
-      xl:text-[8rem]  xl:w-[5.5rem] xl:h-32 rounded-md justify-center   flex items-center `}
-    >
-      <AnimatePresence exitBeforeEnter>
-        {show && (
-          <motion.div
-            key={`front-${suit}-${name}`}
-            initial={{ opacity: 0 }}
-            animate={{ rotate: [0, 2, -2, 0], opacity: 1 }}
-          >
-            {CardMap[suit].cards[name]}
-          </motion.div>
-        )}
-        {!show && (
-          <motion.div
-            key={`back-${suit}-${name}`}
-            exit={{ opacity: 0 }}
-          >
-            &#127136;
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    <AnimatePresence >
+      {show && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ rotate: [0, 2, -2, 0], opacity: 1 }}
+        >
+          <SVG src={`/icons/${suit}-${name}.svg`} className={classNames} />{" "}
+        </motion.div>
+      )}
+
+      {!show && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ rotate: [0, 2, -2, 0], opacity: 1 }}
+        >
+          <SVG src={`/icons/back.svg`} className={classNames} />
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

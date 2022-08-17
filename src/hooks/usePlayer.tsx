@@ -2,6 +2,7 @@ import React, { PropsWithChildren, useEffect, useState } from "react";
 import { Card } from "@interfaces/card";
 import _ from "lodash";
 import { useDeck } from "./useDeck";
+import { Balance, useBank } from "./useBank";
 type Props = {};
 type PlayerHand = Card[];
 type PlayerDecision = {
@@ -24,6 +25,9 @@ export type PlayerContextProps = {
   clear: () => void;
   setBiggerTotal: () => void;
   maxTotal: number;
+  isTimeToBet: boolean;
+  hasNotBet: boolean;
+  currentBet: Balance;
 };
 type PlayerDecisions = PlayerDecision[];
 export const PlayerDefault = {
@@ -41,6 +45,9 @@ export const PlayerDefault = {
   clear: () => {},
   setBiggerTotal: () => {},
   maxTotal: 0,
+  isTimeToBet: false,
+  hasNotBet: false,
+  currentBet: { total: 0, bills: {} },
 };
 export const PlayerContext =
   React.createContext<PlayerContextProps>(PlayerDefault);
@@ -68,7 +75,9 @@ export const playerHooks = () => {
     setTotal(totalOptions);
   }, [hand]);
 
-  const addCard = (cards: Card[]) => setHand([...hand, ...cards]);
+  const addCard = (cards: Card[]) => {
+    setHand([...hand, ...cards]);
+  };
   var isDoubleTotal =
     totals.length > 1 && totals[0] !== totals[1] && totals[1] < 22;
   var isBlackJack = totals[0] === 21 || (totals.length > 1 && totals[1] === 21);
@@ -82,9 +91,14 @@ export const playerHooks = () => {
     setTotal([_.max(totals) || 0]);
   };
   var notStarted = decisions.length === 0;
+  var isTimeToBet = decision.action === "start";
   var isStanding = decision.action === "stand";
   var isBusted = totals && totals.every((total) => total > 21);
   var maxTotal = _.max(totals) || 0;
+  const { getBet } = useBank();
+  const currentBet = getBet("player");
+  const hasNotBet = currentBet.total === 0 && isTimeToBet;
+
   return {
     hand,
     addCard,
@@ -100,6 +114,9 @@ export const playerHooks = () => {
     clear,
     setBiggerTotal,
     maxTotal,
+    isTimeToBet,
+    hasNotBet,
+    currentBet,
   };
 };
 export const usePlayer = () => React.useContext(PlayerContext);

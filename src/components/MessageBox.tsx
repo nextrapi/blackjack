@@ -19,7 +19,6 @@ export default function MessageBox({}: Props) {
     show: { y: 0, opacity: 1, rotate: [0,10,-10,0] },
     exit: { y: -5, opacity: 0, rotate: 360 },
   };
-  console.log(gameMessage);
   const uuid = v1();
   return (
     <motion.ol

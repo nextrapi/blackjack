@@ -15,6 +15,10 @@ export default function Decisions({}: Props) {
     isBusted,
     clear: clearPlayer,
     isStanding,
+    decision,
+    isTimeToBet,
+    hasNotBet,
+    addCard,
   } = usePlayer();
   const {
     newDecision: newDealerDecision,
@@ -23,7 +27,7 @@ export default function Decisions({}: Props) {
     isBlackJack: dealerIsBlackJack,
     isStanding: dealerIsStanding,
   } = useDealer();
-  const { reset: resetDeck } = useDeck();
+  const { reset: resetDeck, getCard } = useDeck();
   const { isGameOver, resetGameMessage } = useGame();
   const baseButtonClass =
     " bg-gray-100 rounded-md shadow-xl  text-gray-800 text-xl font-bold uppercase disabled:bg-opacity-30  ";
@@ -35,7 +39,6 @@ export default function Decisions({}: Props) {
     resetGameMessage();
   };
   const disableDecisions = isGameOver || isBusted || isStanding;
-
   return (
     <AnimatePresence exitBeforeEnter>
       {notStarted ? (
@@ -60,6 +63,27 @@ export default function Decisions({}: Props) {
           }}
         >
           Start Game
+        </motion.button>
+      ) : isTimeToBet ? (
+        <motion.button
+          initial={{
+            opacity: 0,
+            y: 200,
+          }}
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+          exit={{
+            opacity: 0,
+            y: 200,
+          }}
+          key={"stand-button"}
+          disabled={hasNotBet}
+          className={`col-span-10 col-start-2 xl:col-span-8 xl:col-start-3 ${baseButtonClass}`}
+          onClick={() => addCard(getCard())}
+        >
+          Confirm Bet
         </motion.button>
       ) : (
         <>

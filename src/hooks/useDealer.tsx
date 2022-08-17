@@ -17,21 +17,6 @@ export default function DealerProvider({ children }: PropsWithChildren<{}>) {
   const { getCard, deck } = useDeck();
   var shouldDealerStand =
     dealer.totals[0] >= 17 || (dealer.isDoubleTotal && dealer.totals[1] >= 17);
-  const getDealerCard = () => {
-    setTimeout(() => {
-      if (player.isStanding && !dealer.isBusted && !shouldDealerStand) {
-        dealer.newDecision("hit");
-      } else {
-        if (shouldDealerStand) {
-          dealer.newDecision("stand");
-        }
-      }
-    }, 1000);
-  };
-  useEffect(getDealerCard, [player.isStanding]);
-  useEffect(getDealerCard, [dealer.totals]);
-  console.log(dealer);
-  console.log(player);
   return (
     <DealerContext.Provider
       value={{
