@@ -13,7 +13,7 @@ export default function BettingChips({}: Props) {
       key="betting-chips"
       className="flex justify-center items-center h-full w-full"
     >
-      {currencies.map((currency) => {
+      {currencies.map((currency,currencyIndex) => {
         const count = getBetBillCount("player", currency.value);
         const chips = Array(count)
           .fill(currency.value)
@@ -37,7 +37,7 @@ export default function BettingChips({}: Props) {
             </div>
           ));
         return (
-          <div className="relative" key={index}>
+          <div className="relative" key={currencyIndex}>
             {chips}
           </div>
         );
