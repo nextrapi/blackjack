@@ -3,7 +3,7 @@ import { useDeck } from "./useDeck";
 import {
   PlayerContextProps,
   PlayerDefault,
-  playerHooks,
+  PlayerHooks,
   usePlayer,
 } from "./usePlayer";
 interface DealerContextProps extends PlayerContextProps {}
@@ -12,7 +12,7 @@ export const DealerContext = React.createContext<DealerContextProps>({
 });
 export const useDealer = () => React.useContext(DealerContext);
 export default function DealerProvider({ children }: PropsWithChildren<{}>) {
-  const dealer = playerHooks();
+  const dealer = PlayerHooks();
   const player = usePlayer();
   const { getCard, deck } = useDeck();
   var shouldDealerStand =

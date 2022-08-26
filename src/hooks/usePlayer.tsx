@@ -53,7 +53,7 @@ export const PlayerDefault = {
 };
 export const PlayerContext =
   React.createContext<PlayerContextProps>(PlayerDefault);
-export const playerHooks = () => {
+export const PlayerHooks = () => {
   const [hand, setHand] = useState<PlayerHand>([]);
   const [decisions, setDecisions] = useState<PlayerDecisions>([]);
   const [decision, setDecision] = useState<PlayerDecision>({
@@ -129,7 +129,7 @@ export const playerHooks = () => {
 };
 export const usePlayer = () => React.useContext(PlayerContext);
 export default function PlayerProvider({ children }: PropsWithChildren<Props>) {
-  const player = playerHooks();
+  const player = PlayerHooks();
 
   return (
     <PlayerContext.Provider value={player}>{children}</PlayerContext.Provider>

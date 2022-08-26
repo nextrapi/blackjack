@@ -36,7 +36,11 @@ export default function BettingChips({}: Props) {
               })}
             </div>
           ));
-        return <div className="relative">{chips}</div>;
+        return (
+          <div className="relative" key={index}>
+            {chips}
+          </div>
+        );
       })}
     </motion.div>
   );

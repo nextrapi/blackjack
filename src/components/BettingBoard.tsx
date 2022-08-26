@@ -22,7 +22,7 @@ export default function BettingBoard({}: Props) {
       className="p-5 px-6 xl:p-6 rounded-xl xl:px-8   bg-green-800 items-center inline-flex flex-col justify-between"
     >
       <div className="space-x-4  xl:space-x-5 flex">
-        {currencies.map((currency,currencyIndex) => {
+        {currencies.map((currency, currencyIndex) => {
           const count = getBalanceBillCount("player", currency.value);
           const hiddenChips = Array(count)
             .fill(currency.value)
