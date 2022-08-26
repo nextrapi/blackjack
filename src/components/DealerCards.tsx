@@ -15,26 +15,15 @@ export default function DealerCards({}: Props) {
   const addCardToHand = () => {
     addCard(getCard());
   };
+
   const startGame = () => {
     console.log(deck.length);
     addCard(getCard(2));
   };
-  useEffect(() => {
-    switch (decision.action) {
-      case "bet":
-        startGame();
-        break;
-      case "hit":
-        addCardToHand();
-        break;
-      default:
-        break;
-    }
-  }, [decision]);
-  if (hand.length == 0) return null;
+
   const showCard = isStanding || isBusted || isBlackJack;
   return (
-    <div className="flex  py-4 space-y-5 flex-col  text-center">
+    <div className="  py-4 space-y-5 flex-col  text-center h-[20vh] flex justify-center">
       <div className="flex space-x-2 flex-wrap relative  justify-center ">
         <AnimatePresence>
           {hand.map((card, index) => (

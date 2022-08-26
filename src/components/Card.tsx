@@ -1,7 +1,6 @@
 import { Card } from "@interfaces/card";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import SVG, { Props as SVGProps } from "react-inlinesvg";
 
 interface CardComponentProps extends Card {
   show?: boolean;
@@ -93,30 +92,35 @@ export default function CardComponent({
   value,
   show = false,
 }: CardComponentProps) {
-  const color =
-    suit === "diamonds" || suit === "hearts" ? "fill-red-500" : "fill-black";
+  const isRed = suit === "diamonds" || suit === "hearts";
+  const color = isRed ? "fill-red-500" : "fill-black";
   const classNames = ` ${color}  m-auto 
 bg-white
-    h-20 w-[3.5rem] px-1
-  md:h-24 md:w-16 
+h-20 w-[3.5rem] p-1
+md:h-24 md:w-16 
 lg:h-28 lg:w-20 rounded-md justify-center flex items-center border-1 border-gray-100 border `;
   return (
-    <AnimatePresence >
+    <AnimatePresence exitBeforeEnter>
       {show && (
         <motion.div
+          key={`front-${suit}-${name}`}
           initial={{ opacity: 0 }}
-          animate={{ rotate: [0, 2, -2, 0], opacity: 1 }}
+          animate={{
+            rotate: [0, 2, -2, 0],
+            opacity: 1,
+          }}
+          className={classNames}
         >
-          <SVG src={`/icons/${suit}-${name}.svg`} className={classNames} />{" "}
+          <img src={`/icons/${suit}-${name}.svg`} className="w-full" />
         </motion.div>
       )}
 
       {!show && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ rotate: [0, 2, -2, 0], opacity: 1 }}
-        >
-          <SVG src={`/icons/back.svg`} className={classNames} />
+        <motion.div key={`back-${suit}-${name}`} className={classNames}>
+          <img
+            src={`/icons/${isRed ? "red" : "black"}-back.svg`}
+            className="w-full"
+          />
         </motion.div>
       )}
     </AnimatePresence>

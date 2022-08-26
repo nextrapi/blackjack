@@ -18,7 +18,6 @@ export default function Decisions({}: Props) {
     decision,
     isTimeToBet,
     hasNotBet,
-    addCard,
   } = usePlayer();
   const {
     newDecision: newDealerDecision,
@@ -27,7 +26,7 @@ export default function Decisions({}: Props) {
     isBlackJack: dealerIsBlackJack,
     isStanding: dealerIsStanding,
   } = useDealer();
-  const { reset: resetDeck, getCard } = useDeck();
+  const { reset: resetDeck } = useDeck();
   const { isGameOver, resetGameMessage } = useGame();
   const baseButtonClass =
     " bg-gray-100 rounded-md shadow-xl  text-gray-800 text-xl font-bold uppercase disabled:bg-opacity-30  ";
@@ -81,7 +80,7 @@ export default function Decisions({}: Props) {
           key={"stand-button"}
           disabled={hasNotBet}
           className={`col-span-10 col-start-2 xl:col-span-8 xl:col-start-3 ${baseButtonClass}`}
-          onClick={() => addCard(getCard())}
+          onClick={() => newDecision("bet")}
         >
           Confirm Bet
         </motion.button>

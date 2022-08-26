@@ -72,6 +72,7 @@ export const GameProvider = ({ children }: PropsWithChildren<{}>) => {
   useEffect(() => {
     switch (player.decision.action) {
       case "bet":
+        dealer.newDecision("bet");
         player.addCard(getCard(2));
         setGameMessage("Nice Cards!");
         break;

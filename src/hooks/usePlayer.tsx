@@ -28,6 +28,7 @@ export type PlayerContextProps = {
   isTimeToBet: boolean;
   hasNotBet: boolean;
   currentBet: Balance;
+  currentBalance: Balance;
 };
 type PlayerDecisions = PlayerDecision[];
 export const PlayerDefault = {
@@ -48,6 +49,7 @@ export const PlayerDefault = {
   isTimeToBet: false,
   hasNotBet: false,
   currentBet: { total: 0, bills: {} },
+  currentBalance: { total: 0, bills: {} },
 };
 export const PlayerContext =
   React.createContext<PlayerContextProps>(PlayerDefault);
@@ -67,10 +69,14 @@ export const playerHooks = () => {
   };
   useEffect(() => {
     var totalOptions: number[] = [0, 0];
-    hand.forEach((card) => {
-      totalOptions[0] += card.value[0];
-      totalOptions[1] += card.value[1] || card.value[0];
-    });
+    if (hand.length > 0 && hand.every((card) => card.name === "A")) {
+      totalOptions = [2, 13];
+    } else {
+      hand.forEach((card) => {
+        totalOptions[0] += card.value[0];
+        totalOptions[1] += card.value[1] || card.value[0];
+      });
+    }
 
     setTotal(totalOptions);
   }, [hand]);
@@ -95,8 +101,9 @@ export const playerHooks = () => {
   var isStanding = decision.action === "stand";
   var isBusted = totals && totals.every((total) => total > 21);
   var maxTotal = _.max(totals) || 0;
-  const { getBet } = useBank();
+  const { getBet, getBalance } = useBank();
   const currentBet = getBet("player");
+  const currentBalance = getBalance("player");
   const hasNotBet = currentBet.total === 0 && isTimeToBet;
 
   return {
@@ -117,6 +124,7 @@ export const playerHooks = () => {
     isTimeToBet,
     hasNotBet,
     currentBet,
+    currentBalance,
   };
 };
 export const usePlayer = () => React.useContext(PlayerContext);

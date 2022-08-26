@@ -17,7 +17,13 @@ type Currency = {
 };
 export type Balance = {
   bills: {
-    [key: string]: number;
+    [key: string]: string[];
+  };
+  total: number;
+};
+export type DetailedBalance = {
+  bills: {
+    [key: string]: string[];
   };
   total: number;
 };
@@ -27,22 +33,42 @@ export const EmptyBalance: Balance = {
 };
 export const StartingBalance: Balance = {
   bills: {
-    "5": 10,
-    "10": 10,
-    "50": 3,
-    "100": 2,
-    "500": 1,
+    "5": Array(10)
+      .fill("5")
+      .map((each) => _.uniqueId("chip-5-")),
+    "10": Array(10)
+      .fill("5")
+      .map((each) => _.uniqueId("chip-10-")),
+    "50": Array(3)
+      .fill("5")
+      .map((each) => _.uniqueId("chip-50-")),
+    "100": Array(2)
+      .fill("5")
+      .map((each) => _.uniqueId("chip-100-")),
+    "500": Array(1)
+      .fill("5")
+      .map((each) => _.uniqueId("chip-500-")),
   },
   total: 1000,
 };
 
 export const DealerStartingBalance: Balance = {
   bills: {
-    "5": 100,
-    "10": 100,
-    "50": 30,
-    "100": 20,
-    "500": 10,
+    "5": Array(100)
+      .fill("5")
+      .map((each) => _.uniqueId("chip-5-")),
+    "10": Array(100)
+      .fill("5")
+      .map((each) => _.uniqueId("chip-10-")),
+    "50": Array(30)
+      .fill("5")
+      .map((each) => _.uniqueId("chip-50-")),
+    "100": Array(20)
+      .fill("5")
+      .map((each) => _.uniqueId("chip-100-")),
+    "500": Array(10)
+      .fill("5")
+      .map((each) => _.uniqueId("chip-500-")),
   },
   total: 10000,
 };
@@ -72,6 +98,7 @@ export const BankContext = React.createContext<{
   hasBill: (userId: string, bill: number) => boolean;
   getBalanceBillCount: (userId: string, bill: number) => number;
   getBetBillCount: (userId: string, bill: number) => number;
+  removeBet: (userId: string, bill: number) => void;
 }>({
   accounts: {},
   clearBankAccount: (userId: string) => {},
@@ -83,6 +110,7 @@ export const BankContext = React.createContext<{
   hasBill: (userId: string, bill: number) => false,
   getBalanceBillCount: (userId: string, bill: number) => 0,
   getBetBillCount: (userId: string, bill: number) => 0,
+  removeBet: (userId: string, bill: number) => {},
 });
 export const useBank = () => React.useContext(BankContext);
 export default function BankProvider({ children }: PropsWithChildren<{}>) {
@@ -144,25 +172,32 @@ export default function BankProvider({ children }: PropsWithChildren<{}>) {
     }
   };
   const addBillsToBet = (temp: Accounts, userId: string, bill: number) => {
-    temp[userId].balance.bills[bill] -= 1;
+    const balanceBills = [...temp[userId].balance.bills[bill]];
+    const removedBill = balanceBills.splice(0, 1);
+    temp[userId].balance.bills[bill] = balanceBills;
     temp[userId].balance.total -= bill;
-    temp[userId].bet.bills[bill] = getBetBillCount(userId, bill) + 1;
+    const betBills = temp[userId].bet.bills[bill] || [];
+    temp[userId].bet.bills[bill] = [...betBills, ...removedBill];
     temp[userId].bet.total += bill;
   };
   const shiftBills = (temp: Accounts, userId: string, bill: number) => {
     const currentBills = temp[userId].balance.bills;
     const largerBill = Object.keys(currentBills).find((billName) => {
-      const billCount = currentBills[billName];
+      const billCount = currentBills[billName].length;
       const billValue = parseInt(billName);
       const isBillLarger = billValue > bill;
       return isBillLarger && billCount > 0;
     });
     if (largerBill) {
       const billValue = parseInt(largerBill);
-      const billCount = currentBills[largerBill];
+      const billCount = currentBills[largerBill].length;
       const newBills = Math.floor(billValue / bill);
-      temp[userId].balance.bills[largerBill] = billCount - 1;
-      temp[userId].balance.bills[bill] = newBills;
+      const balanceLargerBills = [...currentBills[largerBill]];
+      balanceLargerBills.pop();
+      temp[userId].balance.bills[largerBill] = balanceLargerBills;
+      temp[userId].balance.bills[bill] = Array(newBills)
+        .fill("5")
+        .map((each) => _.uniqueId(`chip-${bill}-`));
     } else {
       const smallerBills = Object.keys(currentBills)
         .filter((billName) => {
@@ -177,7 +212,7 @@ export default function BankProvider({ children }: PropsWithChildren<{}>) {
       for (let index = 0; index < smallerBills.length; index++) {
         const billName = smallerBills[index];
         const billValue = parseInt(billName);
-        const totalBillCount = currentBills[billName];
+        const totalBillCount = currentBills[billName].length;
         if (remainder === 0) {
           break;
         }
@@ -185,9 +220,14 @@ export default function BankProvider({ children }: PropsWithChildren<{}>) {
         const billCount =
           _.min([neededBillCount, totalBillCount]) || totalBillCount;
         remainder = remainder - billValue * billCount;
-        temp[userId].balance.bills[billName] = totalBillCount - billCount;
+        const balanceSmallerBill = [...currentBills[billName]];
+        balanceSmallerBill.splice(0, billCount);
+        temp[userId].balance.bills[billName] = balanceSmallerBill;
       }
-      temp[userId].balance.bills[bill] += 1;
+      temp[userId].balance.bills[bill] = [
+        ...currentBills[bill],
+        _.uniqueId(`chip-${bill}-`),
+      ];
     }
   };
   const canBet = (userId: string, amount: number) => {
@@ -195,7 +235,10 @@ export default function BankProvider({ children }: PropsWithChildren<{}>) {
     return balance.total >= amount;
   };
   const hasBill = (userId: string, bill: number) => {
-    return getBalance(userId).bills[bill.toString()] > 0;
+    return getBalance(userId).bills[bill.toString()].length > 0;
+  };
+  const hasBetBill = (userId: string, bill: number) => {
+    return getBet(userId).bills[bill.toString()].length > 0;
   };
 
   const copyBet = (fromUserId: string, toUserId: string) => {
@@ -207,10 +250,33 @@ export default function BankProvider({ children }: PropsWithChildren<{}>) {
     setAccounts(temp);
   };
   const getBalanceBillCount = (userId: string, bill: number) => {
-    return getBalance(userId).bills[bill.toString()] || 0;
+    return (
+      (getBalance(userId).bills[bill.toString()] &&
+        getBalance(userId).bills[bill.toString()].length) ||
+      0
+    );
   };
   const getBetBillCount = (userId: string, bill: number) => {
-    return getBet(userId).bills[bill.toString()] || 0;
+    return (
+      (getBet(userId).bills[bill.toString()] &&
+        getBet(userId).bills[bill.toString()].length) ||
+      0
+    );
+  };
+  const removeBet = (userId: string, bill: number) => {
+    const temp = { ...accounts };
+    if (hasBetBill(userId, bill)) {
+      const betBills = [...temp[userId].bet.bills[bill]];
+      const removedBill = [betBills.pop() || ""];
+      temp[userId].bet.bills[bill] = betBills;
+      temp[userId].bet.total -= bill;
+      temp[userId].balance.bills[bill] = [
+        ...temp[userId].balance.bills[bill],
+        ...removedBill,
+      ];
+      temp[userId].balance.total += bill;
+      setAccounts(temp);
+    }
   };
   return (
     <BankContext.Provider
@@ -225,6 +291,7 @@ export default function BankProvider({ children }: PropsWithChildren<{}>) {
         hasBill,
         getBalanceBillCount,
         getBetBillCount,
+        removeBet,
       }}
     >
       {children}
