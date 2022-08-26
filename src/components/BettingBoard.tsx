@@ -22,12 +22,12 @@ export default function BettingBoard({}: Props) {
       className="p-5 px-6 xl:p-6 rounded-xl xl:px-8   bg-green-800 items-center inline-flex flex-col justify-between"
     >
       <div className="space-x-4  xl:space-x-5 flex">
-        {currencies.map((currency) => {
+        {currencies.map((currency,currencyIndex) => {
           const count = getBalanceBillCount("player", currency.value);
           const hiddenChips = Array(count)
             .fill(currency.value)
             .map((bill, index) => (
-              <div className={`absolute z-0 inset-0`}>
+              <div className={`absolute z-0 inset-0`} key={index}>
                 {currency.component({
                   showCount: index == 0 ? true : false,
                   count: index == 0 ? count : undefined,
@@ -38,7 +38,7 @@ export default function BettingBoard({}: Props) {
               </div>
             ));
           return (
-            <div className="relative">
+            <div className="relative" key={currencyIndex}>
               {currency.component({
                 onClick: () => {
                   addBet("player", currency.value);

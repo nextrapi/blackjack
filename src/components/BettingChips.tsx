@@ -19,6 +19,7 @@ export default function BettingChips({}: Props) {
           .fill(currency.value)
           .map((bill, index) => (
             <div
+              key={index}
               className={`${index == 0 ? "" : "absolute"} scale-75`}
               style={{
                 top: `-${index < 20 ? index * 5 : 0 * 5}px`,
